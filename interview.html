@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EA作成 | AI EA Platform</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f7f9;
+      color: #111827;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 18px 7%;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+    .progress-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 35px;
+    }
+
+    .progress-bar {
+      width: 5%;
+      height: 100%;
+      background: #111827;
+    }
+
+    .chat {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 30px;
+    }
+
+    .ai-label {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.5;
+      margin: 0 0 12px;
+    }
+
+    .description {
+      color: #6b7280;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice {
+      width: 100%;
+      text-align: left;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .choice:hover {
+      border-color: #111827;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  AI EA Platform
+</header>
+
+<main class="container">
+
+  <div class="progress-text">
+    EA設計進捗：5%
+  </div>
+
+  <div class="progress">
+    <div class="progress-bar"></div>
+  </div>
+
+  <section class="chat">
+
+    <div class="ai-label">
+      AI EA ASSISTANT
+    </div>
+
+    <h1>
+      まず、あなたのトレード経験を教えてください。
+    </h1>
+
+    <p class="description">
+      あなたの経験に合わせて、AIが質問の内容や難易度を調整します。
+    </p>
+
+    <div class="choices">
+      <button class="choice">A：FXを始めたばかり</button>
+      <button class="choice">B：1年未満</button>
+      <button class="choice">C：1〜3年</button>
+      <button class="choice">D：3年以上</button>
+      <button class="choice">E：専業・かなり経験がある</button>
+    </div>
+
+  </section>
+
+</main>
+
+</body>
+</html>
