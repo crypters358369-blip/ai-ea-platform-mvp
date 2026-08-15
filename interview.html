@@ -51,7 +51,7 @@ header {
 
 .progress-bar {
   height: 100%;
-  width: 0;
+  width: 0%;
   background: #111827;
   transition: width .25s ease;
 }
@@ -121,16 +121,23 @@ h1 {
 }
 
 .next-button,
+.generate-button,
 .restart-button {
-  margin-top: 15px;
+  margin-top: 16px;
   border: 0;
   border-radius: 10px;
   background: #111827;
   color: #ffffff;
-  padding: 14px 22px;
+  padding: 15px 22px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.generate-button {
+  width: 100%;
+  font-size: 17px;
+  padding: 17px 22px;
 }
 
 .back-button {
@@ -174,6 +181,10 @@ h1 {
   line-height: 1.7;
 }
 
+.actions {
+  margin-top: 25px;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 28px 15px 60px;
@@ -196,7 +207,9 @@ h1 {
 
 <body>
 
-<header>AI EA Platform</header>
+<header>
+  AI EA Platform
+</header>
 
 <main class="container">
 
@@ -206,10 +219,16 @@ h1 {
   </div>
 
   <div class="progress">
-    <div class="progress-bar" id="progressBar"></div>
+    <div
+      class="progress-bar"
+      id="progressBar">
+    </div>
   </div>
 
-  <section class="card" id="card"></section>
+  <section
+    class="card"
+    id="card">
+  </section>
 
 </main>
 
@@ -248,7 +267,7 @@ const questions = [
   {
     id: "symbol",
     title: "主に取引したい銘柄・通貨ペアは？",
-    description: "例：USDJPY、EURUSD、XAUUSD。まだ未定なら「未定」と入力してください。",
+    description: "例：USDJPY、EURUSD、XAUUSD。未定なら「未定」と入力してください。",
     type: "text"
   },
 
@@ -286,7 +305,7 @@ const questions = [
   {
     id: "entryMethod",
     title: "エントリー判断で最も重視するものは？",
-    description: "ここから回答に応じて詳細質問を変えます。",
+    description: "回答に応じて必要な詳細質問を追加します。",
     type: "choice",
     options: [
       "移動平均線",
@@ -318,7 +337,7 @@ const questions = [
   {
     id: "entryBuy",
     title: "買いエントリーの条件をできるだけ具体的に教えてください。",
-    description: "例：EMA20がEMA50を上抜け、RSIが50以上なら買い。曖昧でも大丈夫です。",
+    description: "例：EMA20がEMA50を上抜け、RSIが50以上なら買い。曖昧でも構いません。",
     type: "text"
   },
 
@@ -434,7 +453,7 @@ const questions = [
   {
     id: "tradeHours",
     title: "取引する時間帯を制限しますか？",
-    description: "サーバー時間ではなく、希望する取引時間のイメージで構いません。",
+    description: "希望する取引時間のイメージで選んでください。",
     type: "choice",
     options: [
       "24時間",
@@ -449,9 +468,10 @@ const questions = [
   {
     id: "tradeHoursDetail",
     title: "取引時間の詳細を入力してください。",
-    description: "例：日本時間16:00〜24:00。細かい指定がなければ「なし」で構いません。",
+    description: "例：日本時間16:00〜24:00。",
     type: "text",
-    showIf: answers => answers.tradeHours === "時間を細かく指定したい"
+    showIf: answers =>
+      answers.tradeHours === "時間を細かく指定したい"
   },
 
   {
@@ -605,37 +625,53 @@ let answers = {};
 let history = [];
 let currentIndex = 0;
 
-const card = document.getElementById("card");
-const progressText = document.getElementById("progressText");
-const questionText = document.getElementById("questionText");
-const progressBar = document.getElementById("progressBar");
+const card =
+  document.getElementById("card");
+
+const progressText =
+  document.getElementById("progressText");
+
+const questionText =
+  document.getElementById("questionText");
+
+const progressBar =
+  document.getElementById("progressBar");
 
 function getVisibleQuestions() {
+
   return questions.filter(q => {
-    if (!q.showIf) return true;
+
+    if (!q.showIf) {
+      return true;
+    }
 
     try {
       return q.showIf(answers);
     } catch {
       return false;
     }
+
   });
+
 }
 
 function render() {
 
-  const visible = getVisibleQuestions();
+  const visible =
+    getVisibleQuestions();
 
   if (currentIndex >= visible.length) {
     finishInterview();
     return;
   }
 
-  const q = visible[currentIndex];
+  const q =
+    visible[currentIndex];
 
-  const percent = Math.round(
-    (currentIndex / visible.length) * 100
-  );
+  const percent =
+    Math.round(
+      (currentIndex / visible.length) * 100
+    );
 
   progressText.textContent =
     `EA設計進捗：${percent}%`;
@@ -648,16 +684,27 @@ function render() {
 
   card.innerHTML = "";
 
-  const label = document.createElement("div");
+  const label =
+    document.createElement("div");
+
   label.className = "label";
-  label.textContent = "AI EA ASSISTANT";
+  label.textContent =
+    "AI EA ASSISTANT";
 
-  const title = document.createElement("h1");
-  title.textContent = q.title;
+  const title =
+    document.createElement("h1");
 
-  const description = document.createElement("p");
-  description.className = "description";
-  description.textContent = q.description;
+  title.textContent =
+    q.title;
+
+  const description =
+    document.createElement("p");
+
+  description.className =
+    "description";
+
+  description.textContent =
+    q.description;
 
   card.appendChild(label);
   card.appendChild(title);
@@ -665,15 +712,22 @@ function render() {
 
   if (q.type === "choice") {
 
-    const choices = document.createElement("div");
-    choices.className = "choices";
+    const choices =
+      document.createElement("div");
+
+    choices.className =
+      "choices";
 
     q.options.forEach(option => {
 
-      const button = document.createElement("button");
+      const button =
+        document.createElement("button");
 
-      button.className = "choice";
-      button.textContent = option;
+      button.className =
+        "choice";
+
+      button.textContent =
+        option;
 
       button.onclick = () => {
         saveAnswer(q, option);
@@ -687,52 +741,74 @@ function render() {
 
   } else {
 
-    const textarea = document.createElement("textarea");
+    const textarea =
+      document.createElement("textarea");
 
-    textarea.className = "text-input";
-    textarea.placeholder = "ここに入力してください";
+    textarea.className =
+      "text-input";
+
+    textarea.placeholder =
+      "ここに入力してください";
 
     if (answers[q.id]) {
-      textarea.value = answers[q.id];
+      textarea.value =
+        answers[q.id];
     }
 
-    const next = document.createElement("button");
+    const next =
+      document.createElement("button");
 
-    next.className = "next-button";
-    next.textContent = "次へ";
+    next.className =
+      "next-button";
+
+    next.textContent =
+      "次へ";
 
     next.onclick = () => {
 
-      const value = textarea.value.trim();
+      const value =
+        textarea.value.trim();
 
       if (!value) {
-        alert("回答を入力してください。");
+        alert(
+          "回答を入力してください。"
+        );
         return;
       }
 
       saveAnswer(q, value);
+
     };
 
     card.appendChild(textarea);
     card.appendChild(next);
+
   }
 
   if (history.length > 0) {
 
-    const back = document.createElement("button");
+    const back =
+      document.createElement("button");
 
-    back.className = "back-button";
-    back.textContent = "← 前の質問に戻る";
+    back.className =
+      "back-button";
 
-    back.onclick = goBack;
+    back.textContent =
+      "← 前の質問に戻る";
+
+    back.onclick =
+      goBack;
 
     card.appendChild(back);
+
   }
+
 }
 
 function saveAnswer(question, value) {
 
-  answers[question.id] = value;
+  answers[question.id] =
+    value;
 
   history.push({
     id: question.id,
@@ -747,17 +823,24 @@ function saveAnswer(question, value) {
   currentIndex++;
 
   render();
+
 }
 
 function goBack() {
 
-  if (history.length === 0) return;
+  if (history.length === 0) {
+    return;
+  }
 
-  const previous = history.pop();
+  const previous =
+    history.pop();
 
-  delete answers[previous.id];
+  delete answers[
+    previous.id
+  ];
 
-  currentIndex = previous.index;
+  currentIndex =
+    previous.index;
 
   localStorage.setItem(
     "eaInterviewAnswers",
@@ -765,6 +848,7 @@ function goBack() {
   );
 
   render();
+
 }
 
 function finishInterview() {
@@ -783,16 +867,20 @@ function finishInterview() {
     JSON.stringify(answers)
   );
 
-  const visible = getVisibleQuestions();
+  const visible =
+    getVisibleQuestions();
 
   let summaryHTML = "";
 
   visible.forEach(q => {
 
-    if (!answers[q.id]) return;
+    if (!answers[q.id]) {
+      return;
+    }
 
     summaryHTML += `
       <div class="summary-item">
+
         <div class="summary-question">
           ${escapeHTML(q.title)}
         </div>
@@ -800,11 +888,14 @@ function finishInterview() {
         <div class="summary-answer">
           ${escapeHTML(answers[q.id])}
         </div>
+
       </div>
     `;
+
   });
 
   card.innerHTML = `
+
     <div class="label">
       AI EA ASSISTANT
     </div>
@@ -815,35 +906,64 @@ function finishInterview() {
 
     <p class="description">
       回答内容からEAの基本仕様を整理しました。
-      次の工程では、この仕様をAIが分析し、
-      売買ルールの矛盾チェック、バックテスト用仕様、
-      EAコード生成へつなげます。
+      内容を確認したら、次の工程で
+      AI解析・EAコード生成へ進みます。
     </p>
 
     <div class="notice">
-      <strong>EA仕様書（ヒアリング結果）</strong><br>
-      下の内容が、現在のEA設計データです。
+      <strong>
+        EA仕様書（ヒアリング結果）
+      </strong>
+      <br>
+      以下が現在のEA設計データです。
     </div>
 
     <div class="summary">
       ${summaryHTML}
     </div>
 
-    <button
-      class="restart-button"
-      onclick="restartInterview()">
-      最初からやり直す
-    </button>
+    <div class="actions">
+
+      <button
+        class="generate-button"
+        onclick="goToGenerate()">
+        AIでEA生成へ進む
+      </button>
+
+      <button
+        class="restart-button"
+        onclick="restartInterview()">
+        最初からやり直す
+      </button>
+
+    </div>
+
   `;
+
+}
+
+function goToGenerate() {
+
+  localStorage.setItem(
+    "eaInterviewAnswers",
+    JSON.stringify(answers)
+  );
+
+  window.location.href =
+    "generate.html";
+
 }
 
 function restartInterview() {
 
-  const ok = confirm(
-    "保存されている回答を削除して最初からやり直しますか？"
-  );
+  const ok =
+    confirm(
+      "保存されている回答を削除して最初からやり直しますか？"
+    );
 
-  if (!ok) return;
+  if (!ok) {
+    return;
+  }
 
   answers = {};
   history = [];
@@ -853,7 +973,12 @@ function restartInterview() {
     "eaInterviewAnswers"
   );
 
+  localStorage.removeItem(
+    "eaSpecification"
+  );
+
   render();
+
 }
 
 function escapeHTML(value) {
@@ -864,6 +989,7 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+
 }
 
 render();
