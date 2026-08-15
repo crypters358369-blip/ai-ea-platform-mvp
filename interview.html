@@ -6,9 +6,7 @@
   <title>EA作成 | AI EA Platform</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -18,7 +16,7 @@
     }
 
     header {
-      background: white;
+      background: #fff;
       border-bottom: 1px solid #e5e7eb;
       padding: 18px 7%;
       font-size: 20px;
@@ -31,9 +29,12 @@
       padding: 50px 20px;
     }
 
-    .progress-text {
-      font-size: 14px;
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
       color: #6b7280;
+      font-size: 14px;
       margin-bottom: 10px;
     }
 
@@ -46,13 +47,14 @@
     }
 
     .progress-bar {
-      width: 5%;
+      width: 0%;
       height: 100%;
       background: #111827;
+      transition: width .3s ease;
     }
 
     .chat {
-      background: white;
+      background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 16px;
       padding: 30px;
@@ -84,62 +86,258 @@
     .choice {
       width: 100%;
       text-align: left;
-      background: white;
+      background: #fff;
       border: 1px solid #d1d5db;
       border-radius: 10px;
       padding: 16px;
       font-size: 16px;
       cursor: pointer;
+      transition: .15s;
     }
 
     .choice:hover {
       border-color: #111827;
       background: #f9fafb;
+      transform: translateY(-1px);
+    }
+
+    .complete {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .complete h1 {
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 16px;
+      }
+
+      .chat {
+        padding: 22px;
+      }
+
+      h1 {
+        font-size: 23px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header>
-  AI EA Platform
-</header>
+<header>AI EA Platform</header>
 
 <main class="container">
 
-  <div class="progress-text">
-    EA設計進捗：5%
+  <div class="status">
+    <span id="progressText">EA設計進捗：0%</span>
+    <span id="remainingText">残り質問：10個</span>
   </div>
 
   <div class="progress">
-    <div class="progress-bar"></div>
+    <div class="progress-bar" id="progressBar"></div>
   </div>
 
-  <section class="chat">
+  <section class="chat" id="chat">
+    <div class="ai-label">AI EA ASSISTANT</div>
 
-    <div class="ai-label">
-      AI EA ASSISTANT
-    </div>
+    <h1 id="question"></h1>
 
-    <h1>
-      まず、あなたのトレード経験を教えてください。
-    </h1>
+    <p class="description" id="description"></p>
 
-    <p class="description">
-      あなたの経験に合わせて、AIが質問の内容や難易度を調整します。
-    </p>
-
-    <div class="choices">
-      <button class="choice">A：FXを始めたばかり</button>
-      <button class="choice">B：1年未満</button>
-      <button class="choice">C：1〜3年</button>
-      <button class="choice">D：3年以上</button>
-      <button class="choice">E：専業・かなり経験がある</button>
-    </div>
-
+    <div class="choices" id="choices"></div>
   </section>
 
 </main>
+
+<script>
+const questions = [
+  {
+    question: "まず、あなたのトレード経験を教えてください。",
+    description: "あなたの経験に合わせて、質問の内容や難易度を調整します。",
+    choices: [
+      "A：FXを始めたばかり",
+      "B：1年未満",
+      "C：1〜3年",
+      "D：3年以上",
+      "E：専業・かなり経験がある"
+    ]
+  },
+  {
+    question: "主にどのような時間軸でトレードしますか？",
+    description: "最も近いものを選んでください。",
+    choices: [
+      "A：スキャルピング",
+      "B：デイトレード",
+      "C：スイングトレード",
+      "D：長期トレード",
+      "E：複数の時間軸を使う"
+    ]
+  },
+  {
+    question: "エントリー判断で最も重視するものは？",
+    description: "普段の判断に最も近いものを選んでください。",
+    choices: [
+      "A：値動き・ローソク足",
+      "B：インジケーター",
+      "C：ライン・チャートパターン",
+      "D：ファンダメンタルズ",
+      "E：複数を組み合わせる"
+    ]
+  },
+  {
+    question: "エントリー条件はどの程度明確ですか？",
+    description: "現在のトレード手法について教えてください。",
+    choices: [
+      "A：ほぼ感覚で判断する",
+      "B：大まかな条件はある",
+      "C：ある程度ルール化している",
+      "D：かなり明確に決まっている"
+    ]
+  },
+  {
+    question: "損切りはどのように決めていますか？",
+    description: "最も近いものを選んでください。",
+    choices: [
+      "A：固定pips",
+      "B：直近高値・安値",
+      "C：ATRなど相場状況",
+      "D：金額・資金割合",
+      "E：その時の裁量"
+    ]
+  },
+  {
+    question: "利益確定はどのように決めていますか？",
+    description: "現在の方法に最も近いものを選んでください。",
+    choices: [
+      "A：固定pips",
+      "B：リスクリワード比",
+      "C：チャート上の目標",
+      "D：トレーリング",
+      "E：その時の裁量"
+    ]
+  },
+  {
+    question: "1回のトレードで許容するリスクは？",
+    description: "口座資金に対する目安で選んでください。",
+    choices: [
+      "A：0.5%未満",
+      "B：0.5〜1%",
+      "C：1〜2%",
+      "D：2〜5%",
+      "E：特に決めていない"
+    ]
+  },
+  {
+    question: "EAに最も求めるものは何ですか？",
+    description: "優先順位が最も高いものを選んでください。",
+    choices: [
+      "A：安定性",
+      "B：利益率",
+      "C：低ドローダウン",
+      "D：取引回数",
+      "E：自分の裁量手法の再現"
+    ]
+  },
+  {
+    question: "EAを動かしたい市場は？",
+    description: "まず最初に作りたい対象を選んでください。",
+    choices: [
+      "A：FX",
+      "B：ゴールド",
+      "C：株価指数",
+      "D：暗号資産",
+      "E：まだ決めていない"
+    ]
+  },
+  {
+    question: "最後に、EA化したい手法の状態を教えてください。",
+    description: "今の段階に最も近いものを選んでください。",
+    choices: [
+      "A：まだアイデアだけ",
+      "B：大まかな手法がある",
+      "C：実際に裁量で使っている",
+      "D：かなり細かくルール化済み"
+    ]
+  }
+];
+
+let currentQuestion = 0;
+const answers = [];
+
+const questionEl = document.getElementById("question");
+const descriptionEl = document.getElementById("description");
+const choicesEl = document.getElementById("choices");
+const progressText = document.getElementById("progressText");
+const remainingText = document.getElementById("remainingText");
+const progressBar = document.getElementById("progressBar");
+const chat = document.getElementById("chat");
+
+function renderQuestion() {
+  const item = questions[currentQuestion];
+
+  const percent = Math.round((currentQuestion / questions.length) * 100);
+  const remaining = questions.length - currentQuestion;
+
+  progressText.textContent = `EA設計進捗：${percent}%`;
+  remainingText.textContent = `残り質問：${remaining}個`;
+  progressBar.style.width = `${percent}%`;
+
+  questionEl.textContent = item.question;
+  descriptionEl.textContent = item.description;
+  choicesEl.innerHTML = "";
+
+  item.choices.forEach(choice => {
+    const button = document.createElement("button");
+    button.className = "choice";
+    button.textContent = choice;
+
+    button.addEventListener("click", () => {
+      answers.push({
+        question: item.question,
+        answer: choice
+      });
+
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        renderQuestion();
+      } else {
+        showComplete();
+      }
+    });
+
+    choicesEl.appendChild(button);
+  });
+}
+
+function showComplete() {
+  progressText.textContent = "EA設計進捗：100%";
+  remainingText.textContent = "基本質問完了";
+  progressBar.style.width = "100%";
+
+  localStorage.setItem(
+    "eaInterviewAnswers",
+    JSON.stringify(answers)
+  );
+
+  chat.innerHTML = `
+    <div class="complete">
+      <div class="ai-label">AI EA ASSISTANT</div>
+      <h1>基本ヒアリングが完了しました。</h1>
+      <p class="description">
+        回答内容を保存しました。次の工程では、
+        あなたのトレード手法をさらに具体的なEAルールへ落とし込んでいきます。
+      </p>
+    </div>
+  `;
+}
+
+renderQuestion();
+</script>
 
 </body>
 </html>
