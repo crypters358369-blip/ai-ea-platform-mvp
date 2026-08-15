@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EA生成 | AI EA Platform</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f7f9;
+  color: #111827;
+}
+
+header {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 18px 7%;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 45px 20px 80px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eef2f7;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: 34px;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+
+.lead {
+  color: #6b7280;
+  line-height: 1.8;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 26px;
+  margin-bottom: 18px;
+}
+
+.card h2 {
+  font-size: 19px;
+  margin: 0 0 15px;
+}
+
+.summary {
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.item-title {
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.item-value {
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 15px 22px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  background: #111827;
+  color: #fff;
+}
+
+.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.status {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  line-height: 1.7;
+}
+
+.warning {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.hidden {
+  display: none;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  overflow: auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 30px 15px;
+  }
+
+  h1 {
+    font-size: 27px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  AI EA Platform
+</header>
+
+<main class="container">
+
+  <div class="badge">
+    EA GENERATION
+  </div>
+
+  <h1>
+    あなたのEA仕様を確認します。
+  </h1>
+
+  <p class="lead">
+    ヒアリング内容をもとにEA設計データを整理します。
+    内容を確認したあと、AI解析・EAコード生成へ進みます。
+  </p>
+
+  <section class="card">
+
+    <h2>ヒアリング結果</h2>
+
+    <div
+      id="summary"
+      class="summary">
+    </div>
+
+  </section>
+
+  <section
+    id="noData"
+    class="card warning hidden">
+
+    ヒアリングデータが見つかりません。
+    先にEA設計インタビューを完了してください。
+
+  </section>
+
+  <div class="actions">
+
+    <button
+      class="secondary"
+      onclick="backToInterview()">
+      ヒアリングに戻る
+    </button>
+
+    <button
+      id="generateButton"
+      class="primary"
+      onclick="generateEA()">
+      AIでEA仕様を生成
+    </button>
+
+  </div>
+
+  <div
+    id="status"
+    class="status hidden">
+  </div>
+
+  <section
+    id="resultCard"
+    class="card hidden">
+
+    <h2>EA仕様データ</h2>
+
+    <pre id="result"></pre>
+
+  </section>
+
+</main>
+
+<script>
+
+const summary =
+  document.getElementById("summary");
+
+const noData =
+  document.getElementById("noData");
+
+const generateButton =
+  document.getElementById("generateButton");
+
+const statusBox =
+  document.getElementById("status");
+
+const resultCard =
+  document.getElementById("resultCard");
+
+const result =
+  document.getElementById("result");
+
+let answers = {};
+
+try {
+
+  answers = JSON.parse(
+    localStorage.getItem("eaInterviewAnswers")
+  ) || {};
+
+} catch {
+
+  answers = {};
+
+}
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+function showAnswers() {
+
+  const entries =
+    Object.entries(answers);
+
+  if (entries.length === 0) {
+
+    noData.classList.remove("hidden");
+    generateButton.disabled = true;
+    generateButton.style.opacity = ".5";
+
+    return;
+
+  }
+
+  entries.forEach(([key, value]) => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "item";
+
+    item.innerHTML = `
+      <div class="item-title">
+        ${escapeHTML(key)}
+      </div>
+
+      <div class="item-value">
+        ${escapeHTML(value)}
+      </div>
+    `;
+
+    summary.appendChild(item);
+
+  });
+
+}
+
+function generateEA() {
+
+  statusBox.classList.remove("hidden");
+
+  statusBox.innerHTML = `
+    <strong>EA仕様データを準備しました。</strong><br>
+    現在はAI接続前のため、
+    ここではヒアリングデータを
+    EA生成用の形式へまとめています。
+  `;
+
+  const specification = {
+
+    platform: "AI EA Platform",
+
+    status:
+      "READY_FOR_AI_ANALYSIS",
+
+    createdAt:
+      new Date().toISOString(),
+
+    interview:
+      answers,
+
+    nextStep:
+      "AI analysis and MQL EA code generation"
+
+  };
+
+  result.textContent =
+    JSON.stringify(
+      specification,
+      null,
+      2
+    );
+
+  resultCard.classList.remove("hidden");
+
+  localStorage.setItem(
+    "eaSpecification",
+    JSON.stringify(specification)
+  );
+
+}
+
+function backToInterview() {
+
+  window.location.href =
+    "interview.html";
+
+}
+
+showAnswers();
+
+</script>
+
+</body>
+</html>
