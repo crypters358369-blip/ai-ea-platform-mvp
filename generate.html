@@ -1,377 +1,556 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EA生成 | AI EA Platform</title>
 
-<title>EA生成 | AI EA Platform</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
-* {
-  box-sizing: border-box;
-}
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f7f9;
+      color: #111827;
+    }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f7f9;
-  color: #111827;
-}
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 18px 7%;
+    }
 
-header {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 18px 7%;
-  font-size: 20px;
-  font-weight: 700;
-}
+    .brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 45px 20px 80px;
-}
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
 
-.badge {
-  display: inline-block;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #eef2f7;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 18px;
-}
+    .eyebrow {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
 
-h1 {
-  font-size: 34px;
-  line-height: 1.4;
-  margin: 0 0 12px;
-}
+    h1 {
+      font-size: 42px;
+      line-height: 1.25;
+      margin: 0 0 18px;
+    }
 
-.lead {
-  color: #6b7280;
-  line-height: 1.8;
-  margin-bottom: 30px;
-}
+    .lead {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #4b5563;
+      margin-bottom: 36px;
+    }
 
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 26px;
-  margin-bottom: 18px;
-}
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      padding: 34px;
+      margin-bottom: 24px;
+    }
 
-.card h2 {
-  font-size: 19px;
-  margin: 0 0 15px;
-}
+    .card h2 {
+      margin-top: 0;
+      font-size: 25px;
+    }
 
-.summary {
-  display: grid;
-  gap: 10px;
-}
+    .status {
+      padding: 18px 20px;
+      border-radius: 14px;
+      background: #f3f4f6;
+      line-height: 1.7;
+      margin-bottom: 22px;
+      font-weight: 600;
+    }
 
-.item {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 14px;
-}
+    .loading {
+      text-align: center;
+      padding: 45px 20px;
+    }
 
-.item-title {
-  color: #6b7280;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #111827;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 0.8s linear infinite;
+    }
 
-.item-value {
-  font-weight: 650;
-  line-height: 1.5;
-}
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-.actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 25px;
-}
+    .section {
+      margin-top: 30px;
+    }
 
-button {
-  border: 0;
-  border-radius: 10px;
-  padding: 15px 22px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-}
+    .section h3 {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
 
-.primary {
-  background: #111827;
-  color: #fff;
-}
+    .item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 17px 19px;
+      margin-bottom: 10px;
+      line-height: 1.65;
+    }
 
-.secondary {
-  background: #e5e7eb;
-  color: #111827;
-}
+    .label {
+      display: block;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
 
-.status {
-  margin-top: 20px;
-  padding: 18px;
-  border-radius: 12px;
-  background: #f3f4f6;
-  line-height: 1.7;
-}
+    .value {
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
 
-.warning {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-}
+    ul {
+      padding-left: 22px;
+      line-height: 1.8;
+    }
 
-.hidden {
-  display: none;
-}
+    .warning {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
 
-pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: #111827;
-  color: #f9fafb;
-  border-radius: 12px;
-  padding: 20px;
-  overflow: auto;
-  line-height: 1.6;
-}
+    .question {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 30px 15px;
-  }
+    .default {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
 
-  h1 {
-    font-size: 27px;
-  }
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 14px;
+      line-height: 1.7;
+    }
 
-  .card {
-    padding: 20px;
-  }
-}
-</style>
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 15px 24px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #111827;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+      margin-right: 10px;
+    }
+
+    .buttons {
+      margin-top: 30px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 14px;
+      padding: 20px;
+      overflow: auto;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      main {
+        padding: 35px 16px 70px;
+      }
+
+      h1 {
+        font-size: 31px;
+      }
+
+      .card {
+        padding: 22px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-  AI EA Platform
+  <div class="brand">AI EA PLATFORM</div>
 </header>
 
-<main class="container">
+<main>
 
-  <div class="badge">
-    EA GENERATION
-  </div>
+  <div class="eyebrow">AI EA ANALYSIS</div>
 
-  <h1>
-    あなたのEA仕様を確認します。
-  </h1>
+  <h1>AIがあなたのEA仕様を分析します。</h1>
 
   <p class="lead">
-    ヒアリング内容をもとにEA設計データを整理します。
-    内容を確認したあと、AI解析・EAコード生成へ進みます。
+    ヒアリング内容をAIが解析し、
+    実際にEAへ落とし込めるトレードルールへ整理します。
   </p>
 
-  <section class="card">
+  <div class="card">
 
-    <h2>ヒアリング結果</h2>
-
-    <div
-      id="summary"
-      class="summary">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <strong>EA仕様をAIが分析しています...</strong>
+      <p>条件・リスク管理・不足情報を確認しています。</p>
     </div>
 
-  </section>
-
-  <section
-    id="noData"
-    class="card warning hidden">
-
-    ヒアリングデータが見つかりません。
-    先にEA設計インタビューを完了してください。
-
-  </section>
-
-  <div class="actions">
-
-    <button
-      class="secondary"
-      onclick="backToInterview()">
-      ヒアリングに戻る
-    </button>
-
-    <button
-      id="generateButton"
-      class="primary"
-      onclick="generateEA()">
-      AIでEA仕様を生成
-    </button>
+    <div id="result" style="display:none;"></div>
 
   </div>
-
-  <div
-    id="status"
-    class="status hidden">
-  </div>
-
-  <section
-    id="resultCard"
-    class="card hidden">
-
-    <h2>EA仕様データ</h2>
-
-    <pre id="result"></pre>
-
-  </section>
 
 </main>
 
 <script>
+  const API_URL = "https://ai-ea-api.crypters358369.workers.dev/";
 
-const summary =
-  document.getElementById("summary");
+  const loadingEl = document.getElementById("loading");
+  const resultEl = document.getElementById("result");
 
-const noData =
-  document.getElementById("noData");
-
-const generateButton =
-  document.getElementById("generateButton");
-
-const statusBox =
-  document.getElementById("status");
-
-const resultCard =
-  document.getElementById("resultCard");
-
-const result =
-  document.getElementById("result");
-
-let answers = {};
-
-try {
-
-  answers = JSON.parse(
-    localStorage.getItem("eaInterviewAnswers")
-  ) || {};
-
-} catch {
-
-  answers = {};
-
-}
-
-function escapeHTML(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-function showAnswers() {
-
-  const entries =
-    Object.entries(answers);
-
-  if (entries.length === 0) {
-
-    noData.classList.remove("hidden");
-    generateButton.disabled = true;
-    generateButton.style.opacity = ".5";
-
-    return;
-
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
-  entries.forEach(([key, value]) => {
+  function getStoredData() {
+    const possibleKeys = [
+      "eaInterview",
+      "interviewAnswers",
+      "answers",
+      "eaAnswers",
+      "interviewData"
+    ];
 
-    const item =
-      document.createElement("div");
+    for (const key of possibleKeys) {
+      const raw = localStorage.getItem(key);
 
-    item.className = "item";
+      if (!raw) continue;
 
-    item.innerHTML = `
-      <div class="item-title">
-        ${escapeHTML(key)}
+      try {
+        const parsed = JSON.parse(raw);
+
+        if (parsed && typeof parsed === "object") {
+          return parsed;
+        }
+      } catch (e) {
+        console.warn("Could not parse:", key);
+      }
+    }
+
+    return null;
+  }
+
+  function normalizeInterviewData(stored) {
+    if (!stored) return null;
+
+    if (stored.answers && typeof stored.answers === "object") {
+      return {
+        answers: stored.answers,
+        userLevel:
+          stored.userLevel ||
+          stored.level ||
+          stored.answers.userLevel ||
+          "unknown"
+      };
+    }
+
+    return {
+      answers: stored,
+      userLevel:
+        stored.userLevel ||
+        stored.level ||
+        stored.knowledge ||
+        "unknown"
+    };
+  }
+
+  function renderList(title, values, className = "") {
+    if (!Array.isArray(values) || values.length === 0) {
+      return "";
+    }
+
+    return `
+      <div class="section">
+        <h3>${escapeHtml(title)}</h3>
+
+        ${values.map(value => {
+          if (typeof value === "object") {
+            return `
+              <div class="item ${className}">
+                <pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="item ${className}">
+              ${escapeHtml(value)}
+            </div>
+          `;
+        }).join("")}
       </div>
+    `;
+  }
 
-      <div class="item-value">
-        ${escapeHTML(value)}
+  function renderStrategy(strategy) {
+    if (!strategy || typeof strategy !== "object") {
+      return "";
+    }
+
+    const simpleFields = [
+      ["市場", strategy.market],
+      ["銘柄", strategy.symbol],
+      ["時間足", strategy.timeframe],
+      ["トレードスタイル", strategy.style],
+      ["損切り", strategy.stopLoss],
+      ["利益確定", strategy.takeProfit],
+      ["ロット・資金管理", strategy.positionSizing],
+      ["取引時間", strategy.tradingHours]
+    ];
+
+    let html = `
+      <div class="section">
+        <h3>EA基本仕様</h3>
+    `;
+
+    for (const [label, value] of simpleFields) {
+      if (!value) continue;
+
+      html += `
+        <div class="item">
+          <span class="label">${escapeHtml(label)}</span>
+          <div class="value">${escapeHtml(value)}</div>
+        </div>
+      `;
+    }
+
+    html += `</div>`;
+
+    html += renderList(
+      "買いエントリー条件",
+      strategy.buyConditions
+    );
+
+    html += renderList(
+      "売りエントリー条件",
+      strategy.sellConditions
+    );
+
+    html += renderList(
+      "決済条件",
+      strategy.exitConditions
+    );
+
+    html += renderList(
+      "フィルター",
+      strategy.filters
+    );
+
+    html += renderList(
+      "リスク管理",
+      strategy.riskControls
+    );
+
+    return html;
+  }
+
+  function renderAnalysis(analysis) {
+
+    const status =
+      analysis.status === "ready"
+        ? "EA仕様を作成できる状態です"
+        : analysis.status === "needs_clarification"
+        ? "EA仕様を確定するため、追加確認が必要です"
+        : "AI分析結果";
+
+    let html = `
+      <h2>AI分析結果</h2>
+
+      <div class="status">
+        ${escapeHtml(status)}
       </div>
     `;
 
-    summary.appendChild(item);
+    if (analysis.summary) {
+      html += `
+        <div class="section">
+          <h3>手法の概要</h3>
+          <div class="item">
+            ${escapeHtml(analysis.summary)}
+          </div>
+        </div>
+      `;
+    }
 
-  });
+    html += renderStrategy(analysis.strategy);
 
-}
-
-function generateEA() {
-
-  statusBox.classList.remove("hidden");
-
-  statusBox.innerHTML = `
-    <strong>EA仕様データを準備しました。</strong><br>
-    現在はAI接続前のため、
-    ここではヒアリングデータを
-    EA生成用の形式へまとめています。
-  `;
-
-  const specification = {
-
-    platform: "AI EA Platform",
-
-    status:
-      "READY_FOR_AI_ANALYSIS",
-
-    createdAt:
-      new Date().toISOString(),
-
-    interview:
-      answers,
-
-    nextStep:
-      "AI analysis and MQL EA code generation"
-
-  };
-
-  result.textContent =
-    JSON.stringify(
-      specification,
-      null,
-      2
+    html += renderList(
+      "AIからの追加質問",
+      analysis.additionalQuestions,
+      "question"
     );
 
-  resultCard.classList.remove("hidden");
+    html += renderList(
+      "確認された矛盾",
+      analysis.contradictions,
+      "warning"
+    );
 
-  localStorage.setItem(
-    "eaSpecification",
-    JSON.stringify(specification)
-  );
+    html += renderList(
+      "AIの推奨設定候補",
+      analysis.reasonableDefaults,
+      "default"
+    );
 
-}
+    html += renderList(
+      "リスク上の注意",
+      analysis.riskWarnings,
+      "warning"
+    );
 
-function backToInterview() {
+    html += `
+      <div class="buttons">
+        <button
+          class="secondary"
+          onclick="location.href='interview.html'"
+        >
+          ヒアリングに戻る
+        </button>
+      </div>
+    `;
 
-  window.location.href =
-    "interview.html";
+    resultEl.innerHTML = html;
+  }
 
-}
+  async function analyzeEA() {
 
-showAnswers();
+    try {
 
+      const stored = getStoredData();
+      const interview = normalizeInterviewData(stored);
+
+      if (!interview) {
+        throw new Error(
+          "ヒアリングデータが見つかりません。ヒアリング画面からもう一度進んでください。"
+        );
+      }
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          answers: interview.answers,
+          userLevel: interview.userLevel
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          data.error ||
+          "AI APIへの接続に失敗しました。"
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "AI分析に失敗しました。"
+        );
+      }
+
+      localStorage.setItem(
+        "eaAnalysis",
+        JSON.stringify(data.analysis)
+      );
+
+      loadingEl.style.display = "none";
+      resultEl.style.display = "block";
+
+      renderAnalysis(data.analysis);
+
+    } catch (error) {
+
+      console.error(error);
+
+      loadingEl.style.display = "none";
+      resultEl.style.display = "block";
+
+      resultEl.innerHTML = `
+        <h2>分析できませんでした</h2>
+
+        <div class="error">
+          ${escapeHtml(error.message)}
+        </div>
+
+        <div class="buttons">
+          <button
+            class="secondary"
+            onclick="location.href='interview.html'"
+          >
+            ヒアリングに戻る
+          </button>
+
+          <button
+            class="primary"
+            onclick="location.reload()"
+          >
+            もう一度試す
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  analyzeEA();
 </script>
 
 </body>
