@@ -396,74 +396,134 @@
     return html;
   }
 
-  function renderAnalysis(analysis) {
+ function renderAnalysis(analysis) {
 
-    const status =
-      analysis.status === "ready"
-        ? "EA仕様を作成できる状態です"
-        : analysis.status === "needs_clarification"
-        ? "EA仕様を確定するため、追加確認が必要です"
-        : "AI分析結果";
+  const status =
+    analysis.status === "ready"
+      ? "EA仕様を作成できる状態です"
+      : analysis.status === "needs_clarification"
+      ? "EA仕様を確定するため、追加確認が必要です"
+      : "AI分析結果";
 
-    let html = `
-      <h2>AI分析結果</h2>
+  let html = `
+    <h2>AI分析結果</h2>
 
-      <div class="status">
-        ${escapeHtml(status)}
-      </div>
-    `;
+    <div class="status">
+      ${escapeHtml(status)}
+    </div>
+  `;
 
-    if (analysis.summary) {
-      html += `
-        <div class="section">
-          <h3>手法の概要</h3>
-          <div class="item">
-            ${escapeHtml(analysis.summary)}
-          </div>
-        </div>
-      `;
-    }
-
-    html += renderStrategy(analysis.strategy);
-
-    html += renderList(
-      "AIからの追加質問",
-      analysis.additionalQuestions,
-      "question"
-    );
-
-    html += renderList(
-      "確認された矛盾",
-      analysis.contradictions,
-      "warning"
-    );
-
-    html += renderList(
-      "AIの推奨設定候補",
-      analysis.reasonableDefaults,
-      "default"
-    );
-
-    html += renderList(
-      "リスク上の注意",
-      analysis.riskWarnings,
-      "warning"
-    );
-
+  if (analysis.summary) {
     html += `
-      <div class="buttons">
-        <button
-          class="secondary"
-          onclick="location.href='interview.html'"
-        >
-          ヒアリングに戻る
-        </button>
+      <div class="section">
+        <h3>手法の概要</h3>
+        <div class="item">
+          ${escapeHtml(analysis.summary)}
+        </div>
       </div>
     `;
-
-    resultEl.innerHTML = html;
   }
 
+  html += renderStrategy(analysis.strategy);
+
+  html += renderList(
+    "AIからの追加質問",
+    analysis.additionalQuestions,
+    "question"
+  );
+
+  if (
+    Array.isArray(analysis.additionalQuestions) &&
+    analysis.additionalQuestions.length > 0
+  ) {
+
+    html += `
+      <div class="section">
+
+        <h3>追加質問への回答</h3>
+
+        <div id="clarificationAnswers">
+
+          ${analysis.additionalQuestions.map((question, index) => {
+
+            const questionText =
+              typeof question === "object"
+                ? (
+                    question.question ||
+                    question.text ||
+                    question.item ||
+                    JSON.stringify(question)
+                  )
+                : question;
+
+            return `
+              <div class="item">
+
+                <div>
+                  <strong>
+                    ${index + 1}. ${escapeHtml(questionText)}
+                  </strong>
+                </div>
+
+                <textarea
+                  id="clarification-${index}"
+                  rows="3"
+                  placeholder="この質問への回答を入力してください"
+                  style="
+                    width:100%;
+                    box-sizing:border-box;
+                    margin-top:12px;
+                    padding:12px;
+                    border:1px solid #d1d5db;
+                    border-radius:10px;
+                    font-size:16px;
+                  "
+                ></textarea>
+
+              </div>
+            `;
+
+          }).join("")}
+
+        </div>
+
+      </div>
+    `;
+  }
+
+  html += renderList(
+    "確認された矛盾",
+    analysis.contradictions,
+    "warning"
+  );
+
+  html += renderList(
+    "AIの推奨設定候補",
+    analysis.reasonableDefaults,
+    "default"
+  );
+
+  html += renderList(
+    "リスク上の注意",
+    analysis.riskWarnings,
+    "warning"
+  );
+
+  html += `
+    <div class="buttons">
+
+      <button
+        class="secondary"
+        onclick="location.href='interview.html'"
+      >
+        ヒアリングに戻る
+      </button>
+
+    </div>
+  `;
+
+  resultEl.innerHTML = html;
+} 
   async function analyzeEA() {
 
     try {
