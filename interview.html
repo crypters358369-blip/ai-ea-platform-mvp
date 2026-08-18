@@ -1,29 +1,505 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EA仕様生成 | AI EA Platform</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f7f9;
+      color: #111827;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 18px 7%;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 55px 24px 100px;
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 40px;
+      line-height: 1.3;
+      margin: 0 0 16px;
+    }
+
+    .lead {
+      color: #4b5563;
+      font-size: 18px;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 22px;
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 45px 15px;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 20px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #111827;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .status {
+      background: #f3f4f6;
+      border-radius: 14px;
+      padding: 18px;
+      margin: 20px 0;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section h3 {
+      font-size: 20px;
+      margin: 0 0 14px;
+    }
+
+    .item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 17px 19px;
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    .question {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .default {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 14px;
+      padding: 20px;
+      line-height: 1.7;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 15px 22px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #111827;
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    details {
+      margin-top: 30px;
+    }
+
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 20px;
+      border-radius: 14px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      main {
+        padding: 35px 16px 70px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .card {
+        padding: 21px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">AI EA PLATFORM</div>
+</header>
+
+<main>
+
+  <div class="eyebrow">EA GENERATION</div>
+
+  <h1>あなたのEA仕様をAIが分析します。</h1>
+
+  <p class="lead">
+    ヒアリング結果をAIへ送り、
+    エントリー・決済・資金管理・安全設定を
+    EAとして実装可能なルールへ整理します。
+  </p>
+
+  <div class="card">
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+
+      <strong>
+        AIがEA仕様を分析しています...
+      </strong>
+
+      <p>
+        ヒアリング内容とリスク管理条件を確認しています。
+      </p>
+    </div>
+
+    <div id="result" style="display:none;"></div>
+
+  </div>
+
+</main>
+
+<script>
+
+const API_URL =
+  "https://ai-ea-api.crypters358369.workers.dev/";
+
+const loadingEl =
+  document.getElementById("loading");
+
+const resultEl =
+  document.getElementById("result");
+
+
+/* =========================
+   HTML安全表示
+========================= */
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* =========================
+   ヒアリングデータ取得
+========================= */
+
+function loadInterviewData() {
+
+  const answersRaw =
+    localStorage.getItem("eaInterviewAnswers");
+
+  const userLevel =
+    localStorage.getItem("eaUserLevel") ||
+    "unknown";
+
+  if (!answersRaw) {
+    throw new Error(
+      "ヒアリング回答が見つかりません。ヒアリング画面からもう一度進んでください。"
+    );
+  }
+
+  let answers;
+
+  try {
+
+    answers = JSON.parse(answersRaw);
+
+  } catch (error) {
+
+    throw new Error(
+      "保存されたヒアリング回答を読み込めませんでした。"
+    );
+  }
+
+  if (
+    !answers ||
+    typeof answers !== "object" ||
+    Array.isArray(answers)
+  ) {
+
+    throw new Error(
+      "ヒアリング回答の形式が正しくありません。"
+    );
+  }
+
+  return {
+    answers,
+    userLevel
+  };
+}
+
+
+/* =========================
+   配列表示
+========================= */
+
+function renderList(
+  title,
+  values,
+  className = ""
+) {
+
+  if (
+    !Array.isArray(values) ||
+    values.length === 0
+  ) {
+    return "";
+  }
+
+  let html = `
+    <div class="section">
+      <h3>${escapeHTML(title)}</h3>
+  `;
+
+  values.forEach(value => {
+
+    if (
+      value &&
+      typeof value === "object"
+    ) {
+
+      html += `
+        <div class="item ${className}">
+          <pre>${escapeHTML(
+            JSON.stringify(value, null, 2)
+          )}</pre>
+        </div>
+      `;
+
+    } else {
+
+      html += `
+        <div class="item ${className}">
+          ${escapeHTML(value)}
+        </div>
+      `;
+    }
+
+  });
+
+  html += `</div>`;
+
+  return html;
+}
+
+
+/* =========================
+   EA仕様表示
+========================= */
+
+function renderStrategy(strategy) {
+
+  if (
+    !strategy ||
+    typeof strategy !== "object"
+  ) {
+    return "";
+  }
+
+  const fields = [
+
+    ["市場", strategy.market],
+
+    ["銘柄", strategy.symbol],
+
+    ["時間足", strategy.timeframe],
+
+    ["トレードスタイル", strategy.style],
+
+    ["損切り", strategy.stopLoss],
+
+    ["利益確定", strategy.takeProfit],
+
+    [
+      "ポジションサイズ・資金管理",
+      strategy.positionSizing
+    ],
+
+    ["取引時間", strategy.tradingHours]
+
+  ];
+
+  let html = `
+    <div class="section">
+      <h3>EA基本仕様</h3>
+  `;
+
+  fields.forEach(([label, value]) => {
+
+    if (!value) return;
+
+    html += `
+      <div class="item">
+
+        <span class="label">
+          ${escapeHTML(label)}
+        </span>
+
+        <div class="value">
+          ${escapeHTML(value)}
+        </div>
+
+      </div>
+    `;
+
+  });
+
+  html += `</div>`;
+
+  html += renderList(
+    "買いエントリー条件",
+    strategy.buyConditions
+  );
+
+  html += renderList(
+    "売りエントリー条件",
+    strategy.sellConditions
+  );
+
+  html += renderList(
+    "決済条件",
+    strategy.exitConditions
+  );
+
+  html += renderList(
+    "取引フィルター",
+    strategy.filters
+  );
+
+  html += renderList(
+    "リスク管理",
+    strategy.riskControls
+  );
+
+  return html;
+}
+
+
+/* =========================
+   AI結果表示
+========================= */
+
 function renderAnalysis(analysis) {
 
   let statusText =
     "AI分析が完了しました。";
 
   if (analysis.status === "ready") {
+
     statusText =
       "EA仕様を作成できる状態です。";
+
   }
 
   if (
     analysis.status ===
     "needs_clarification"
   ) {
+
     statusText =
       "EA仕様を確定するため、追加確認が必要です。";
+
   }
 
   if (
     analysis.status ===
     "parse_error"
   ) {
+
     statusText =
       "AIの回答をJSONとして解析できませんでした。";
-  }
 
+  }
 
   let html = `
 
@@ -63,110 +539,11 @@ function renderAnalysis(analysis) {
     );
 
 
-  /*
-  =========================
-  AIからの追加質問＋回答欄
-  =========================
-  */
-
-  if (
-    Array.isArray(
-      analysis.additionalQuestions
-    ) &&
-    analysis.additionalQuestions.length > 0
-  ) {
-
-    html += `
-
-      <div class="section">
-
-        <h3>AIからの追加質問</h3>
-
-        <p style="
-          margin-bottom:20px;
-          line-height:1.7;
-        ">
-          EA仕様を完成させるため、
-          以下の質問に回答してください。
-        </p>
-
-    `;
-
-
-    analysis.additionalQuestions
-      .forEach(
-        (question, index) => {
-
-          const questionText =
-            typeof question === "string"
-              ? question
-              : JSON.stringify(question);
-
-          html += `
-
-            <div
-              class="item question"
-              style="
-                margin-bottom:18px;
-              "
-            >
-
-              <div
-                style="
-                  font-weight:700;
-                  margin-bottom:10px;
-                  line-height:1.6;
-                "
-              >
-                ${index + 1}.
-                ${escapeHTML(
-                  questionText
-                )}
-              </div>
-
-              <textarea
-                id="clarification-${index}"
-                rows="4"
-                placeholder="回答を入力してください"
-                style="
-                  width:100%;
-                  box-sizing:border-box;
-                  padding:14px;
-                  border:1px solid #d1d5db;
-                  border-radius:10px;
-                  font-size:16px;
-                  line-height:1.6;
-                  resize:vertical;
-                  background:#ffffff;
-                  color:#111827;
-                "
-              ></textarea>
-
-            </div>
-
-          `;
-
-        }
-      );
-
-
-    html += `
-
-        <button
-          class="primary"
-          onclick="submitClarifications()"
-          style="
-            margin-top:10px;
-          "
-        >
-          回答をAIへ送って再分析
-        </button>
-
-      </div>
-
-    `;
-
-  }
+  html += renderList(
+    "AIからの追加質問",
+    analysis.additionalQuestions,
+    "question"
+  );
 
 
   html += renderList(
@@ -236,158 +613,210 @@ function renderAnalysis(analysis) {
 
   resultEl.innerHTML = html;
 
+}
 
-  /*
-  現在の質問を一時保存
-  */
 
-  window.currentAdditionalQuestions =
-    Array.isArray(
-      analysis.additionalQuestions
-    )
-      ? analysis.additionalQuestions
-      : [];
+/* =========================
+   エラー表示
+========================= */
+
+function showError(error) {
+
+  console.error(error);
+
+  loadingEl.style.display =
+    "none";
+
+  resultEl.style.display =
+    "block";
+
+  resultEl.innerHTML = `
+
+    <h2>
+      AI分析を実行できませんでした
+    </h2>
+
+    <div class="error">
+      ${escapeHTML(
+        error.message ||
+        "不明なエラーが発生しました。"
+      )}
+    </div>
+
+    <div class="buttons">
+
+      <button
+        class="secondary"
+        onclick="location.href='interview.html'"
+      >
+        ヒアリングに戻る
+      </button>
+
+      <button
+        class="primary"
+        onclick="analyzeEA()"
+      >
+        もう一度試す
+      </button>
+
+    </div>
+
+  `;
 
 }
 
 
 /* =========================
-   追加質問の回答を保存して
-   AIへ再送信
+   AI分析
 ========================= */
 
-function submitClarifications() {
+async function analyzeEA() {
 
-  const questions =
-    window.currentAdditionalQuestions || [];
+  loadingEl.style.display =
+    "block";
 
-
-  if (!questions.length) {
-    alert(
-      "追加質問が見つかりません。"
-    );
-    return;
-  }
-
-
-  const clarificationAnswers = {};
-
-
-  for (
-    let index = 0;
-    index < questions.length;
-    index++
-  ) {
-
-    const input =
-      document.getElementById(
-        `clarification-${index}`
-      );
-
-
-    const value =
-      input
-        ? input.value.trim()
-        : "";
-
-
-    if (!value) {
-
-      alert(
-        `${index + 1}番目の質問に回答してください。`
-      );
-
-      if (input) {
-        input.focus();
-      }
-
-      return;
-    }
-
-
-    const question =
-      typeof questions[index] === "string"
-        ? questions[index]
-        : JSON.stringify(
-            questions[index]
-          );
-
-
-    clarificationAnswers[
-      question
-    ] = value;
-
-  }
-
-
-  /*
-  既存ヒアリング回答を取得
-  */
-
-  let savedAnswers = {};
-
+  resultEl.style.display =
+    "none";
 
   try {
 
-    const raw =
-      localStorage.getItem(
-        "eaInterviewAnswers"
+    const {
+      answers,
+      userLevel
+    } = loadInterviewData();
+
+
+    console.log(
+      "Sending interview answers:",
+      answers
+    );
+
+    console.log(
+      "User level:",
+      userLevel
+    );
+
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            answers,
+            userLevel
+          })
+
+        }
       );
 
 
-    if (raw) {
+    let data;
 
-      const parsed =
-        JSON.parse(raw);
+    try {
 
+      data =
+        await response.json();
 
-      if (
-        parsed &&
-        typeof parsed === "object" &&
-        !Array.isArray(parsed)
-      ) {
+    } catch (error) {
 
-        savedAnswers = parsed;
-
-      }
+      throw new Error(
+        "APIからJSON形式の回答を受信できませんでした。"
+      );
 
     }
 
+
+    if (!response.ok) {
+
+      console.error(
+        "API error:",
+        data
+      );
+
+      const apiMessage =
+        data?.details?.error?.message ||
+        data?.message ||
+        data?.error;
+
+      throw new Error(
+        apiMessage ||
+        "AI APIへの接続に失敗しました。"
+      );
+
+    }
+
+
+    if (!data.success) {
+
+      throw new Error(
+        data.error ||
+        "AI分析に失敗しました。"
+      );
+
+    }
+
+
+    if (!data.analysis) {
+
+      throw new Error(
+        "AI分析結果が返されませんでした。"
+      );
+
+    }
+
+
+    localStorage.setItem(
+      "eaSpecification",
+      JSON.stringify(
+        data.analysis
+      )
+    );
+
+
+    localStorage.setItem(
+      "eaAnalysis",
+      JSON.stringify(
+        data.analysis
+      )
+    );
+
+
+    loadingEl.style.display =
+      "none";
+
+    resultEl.style.display =
+      "block";
+
+
+    renderAnalysis(
+      data.analysis
+    );
+
+
   } catch (error) {
 
-    console.error(
-      "ヒアリング回答の読込エラー:",
-      error
-    );
+    showError(error);
 
   }
 
-
-  /*
-  追加回答をヒアリング回答へ追加
-  */
-
-  savedAnswers.aiClarifications = {
-    ...(
-      savedAnswers.aiClarifications ||
-      {}
-    ),
-    ...clarificationAnswers
-  };
-
-
-  localStorage.setItem(
-    "eaInterviewAnswers",
-    JSON.stringify(
-      savedAnswers
-    )
-  );
-
-
-  /*
-  AI再分析
-  */
-
-  analyzeEA();
-
 }
+
+
+/* =========================
+   開始
+========================= */
+
+analyzeEA();
+
+</script>
+
+</body>
+</html>
