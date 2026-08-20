@@ -484,12 +484,12 @@ async function submitClarifications() {
     };
   });
 
-  const unanswered = answers.some(item => !item.answer);
+  const hasAnswer = answers.some(item => item.answer);
 
-  if (unanswered) {
-    alert("すべての質問に回答してください。");
-    return;
-  }
+if (!hasAnswer) {
+  alert("少なくとも1つの質問に回答してください。");
+  return;
+}
 
   clarificationAnswers = answers;
 
